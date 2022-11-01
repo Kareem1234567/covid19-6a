@@ -240,21 +240,14 @@ app.get("/districts/:districtId/details/", async (request, response) => {
     const { districtId } = request.params;
     const Query = `
             SELECT
-                *
+                state.state_name as stateName
             FROM
-                state
-            INNER JOIN district ON state.state_id=district.state_id
+                district
+            NATURAL JOIN state 
             WHERE 
-                district_id=${districtId};`;
+                district.district_id=${districtId};`;
     const dbResponse = await db.all(Query);
-    let results = [];
-    for (let i = 0; i < dbResponse.length; i++) {
-      let resObject = convertDbResponseObjectToCamelCaseStateObject(
-        dbResponse[i]
-      );
-      results.push(resObject);
-    }
-    response.send({ sateName: results[0].stateName });
+    response.send(dbResponse[0]);
   } catch (error) {
     console.log(`ERROR API ${error.message}`);
   }
